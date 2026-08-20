@@ -1,0 +1,10 @@
+-- CreateTable
+CREATE TABLE `Producto` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `nombre` VARCHAR(100) NOT NULL,
+    `stock` INTEGER NOT NULL DEFAULT 0,
+    `precio` DOUBLE NOT NULL,
+    `creadoEn` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

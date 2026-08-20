@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// NUESTRO MODELO DE PRODUCTO (Actualizado con la relación)
+model Producto {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @db.VarChar(100)
+  stock     Int      @default(0)
+  precio    Float
+  creadoEn  DateTime @default(now())
+
+  // Esta línea le dice a Prisma que un producto tiene un historial de movimientos
+  movimientos HistorialMovimiento[]
+}
+
+// TU NUEVO MODELO DE HISTORIAL
+model HistorialMovimiento {
+  id         Int      @id @default(autoincrement())
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  cantidad   Int      
+  tipo       String   
+  motivo     String   @db.VarChar(255) 
+  creadoEn   DateTime @default(now())
+}
+
+model Usuario {
+  id Int @id @default(autoincrement())
+  email String @unique @db.VarChar(150)
+  password String @db.VarChar(255) //Guardará la contraseña ya encriptada
+  rol String @default("Empleado") // Roles Admin - Empleado
+  creadoEn DateTime @default(now())
+}
