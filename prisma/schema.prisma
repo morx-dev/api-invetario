@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -7,33 +8,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NUESTRO MODELO DE PRODUCTO (Actualizado con la relación)
-model Producto {
-  id        Int      @id @default(autoincrement())
-  nombre    String   @db.VarChar(100)
-  stock     Int      @default(0)
-  precio    Float
-  creadoEn  DateTime @default(now())
-
-  // Esta línea le dice a Prisma que un producto tiene un historial de movimientos
-  movimientos HistorialMovimiento[]
-}
-
-// TU NUEVO MODELO DE HISTORIAL
-model HistorialMovimiento {
+model historialmovimiento {
   id         Int      @id @default(autoincrement())
   productoId Int
-  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
-  cantidad   Int      
-  tipo       String   
-  motivo     String   @db.VarChar(255) 
+  cantidad   Int
+  tipo       String
+  motivo     String   @db.VarChar(255)
   creadoEn   DateTime @default(now())
+  producto   producto @relation(fields: [productoId], references: [id], onDelete: Cascade, map: "HistorialMovimiento_productoId_fkey")
+
+  @@index([productoId], map: "HistorialMovimiento_productoId_fkey")
 }
 
-model Usuario {
-  id Int @id @default(autoincrement())
-  email String @unique @db.VarChar(150)
-  password String @db.VarChar(255) //Guardará la contraseña ya encriptada
-  rol String @default("Empleado") // Roles Admin - Empleado
+model producto {
+  id                  Int                   @id @default(autoincrement())
+  nombre              String                @db.VarChar(100)
+  stock               Int                   @default(0)
+  precio              Float
+  creadoEn            DateTime              @default(now())
+  historialmovimiento historialmovimiento[]
+}
+
+model usuario {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique(map: "Usuario_email_key") @db.VarChar(150)
+  password String   @db.VarChar(255)
+  rol      String   @default("Empleado")
   creadoEn DateTime @default(now())
 }
