@@ -13,9 +13,12 @@ const registrar = async (req, res) => {
       return res.status(400).json({ error: 'El email y la contraseña son obligatorios' });
     }
 
+    // Normalizar email a minúsculas y sin espacios
+    const emailLimpio = email.trim().toLowerCase();
+
     // 2. Verificar si el email ya existe en MySQL
     const usuarioExiste = await prisma.usuario.findUnique({
-      where: { email }
+      where: { email: emailLimpio }
     });
 
     if (usuarioExiste) {
@@ -23,20 +26,19 @@ const registrar = async (req, res) => {
     }
 
     // 3. ENCRIPTAR LA CONTRASEÑA (Seguridad)
-    // El "salt" son las rondas de procesamiento del algoritmo (10 es el estándar balanceado)
     const salt = await bcrypt.genSalt(10);
     const passwordEncriptada = await bcrypt.hash(password, salt);
 
     // 4. Guardar el nuevo usuario en MySQL
     const nuevoUsuario = await prisma.usuario.create({
       data: {
-        email: email.trim(),
+        email: emailLimpio,
         password: passwordEncriptada,
         rol: rol ? rol.toUpperCase() : "EMPLEADO" // Si no mandan rol, por defecto es EMPLEADO
       }
     });
 
-    // 5. Responder con éxito (¡OJO! Nunca devolvemos el password en el JSON de respuesta)
+    // 5. Responder con éxito (Nunca devolvemos el password en el JSON de respuesta)
     res.status(201).json({
       mensaje: "Usuario registrado con éxito",
       usuario: {
@@ -51,7 +53,7 @@ const registrar = async (req, res) => {
   }
 };
 
-// NUEVA FUNCIÓN: INICIO DE SESIÓN (LOGIN)
+// INICIO DE SESIÓN (LOGIN)
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -61,30 +63,31 @@ const login = async (req, res) => {
       return res.status(400).json({ error: 'Email y contraseña son requeridos' });
     }
 
+    // Normalizar email a minúsculas para la búsqueda
+    const emailLimpio = email.trim().toLowerCase();
+
     // 2. Buscar si el usuario existe en MySQL
     const usuario = await prisma.usuario.findUnique({
-      where: { email }
+      where: { email: emailLimpio }
     });
 
     if (!usuario) {
-      // Por seguridad, usamos un mensaje genérico para no dar pistas a atacantes
+      // Por seguridad, mensaje genérico para no dar pistas a atacantes
       return res.status(401).json({ error: 'Credenciales incorrectas' });
     }
 
     // 3. COMPARAR CONTRASEÑAS
-    // bcrypt toma la contraseña plana que metió el usuario y la compara matemáticamente con el hash de MySQL
     const passwordCorrecto = await bcrypt.compare(password, usuario.password);
 
     if (!passwordCorrecto) {
       return res.status(401).json({ error: 'Credenciales incorrectas' });
     }
 
-    // 4. GENERAR EL TOKEN JWT (La Llave de Acceso)
-    // Guardamos dentro del token el ID y el ROL del usuario para usarlos después
+    // 4. GENERAR EL TOKEN JWT
     const token = jwt.sign(
       { id: usuario.id, email: usuario.email, rol: usuario.rol },
       process.env.JWT_SECRET,
-      { expiresIn: '8h' } // El token vencerá automáticamente en 8 horas
+      { expiresIn: '8h' }
     );
 
     // 5. Devolver la respuesta con el Token
@@ -95,7 +98,7 @@ const login = async (req, res) => {
         email: usuario.email,
         rol: usuario.rol
       },
-      token: token // Este string gigante es el que usará Thunder Client
+      token: token
     });
 
   } catch (error) {
@@ -105,5 +108,5 @@ const login = async (req, res) => {
 
 module.exports = {
   registrar,
-  login // <-- No olvides exportarlo
+  login
 };

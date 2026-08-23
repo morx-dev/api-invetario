@@ -33,6 +33,7 @@ if (loginForm) {
             // ¡ÉXITO! Guardamos el token y los datos del usuario en el LocalStorage
             localStorage.setItem('token', datos.token);
             localStorage.setItem('usuario', JSON.stringify(datos.usuario));
+            localStorage.setItem('rol', datos.usuario.rol); // Guardamos "ADMIN" o "EMPLEADO"
 
             // Redireccionar al Dashboard del inventario
             window.location.href = 'dashboard.html';
