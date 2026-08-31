@@ -1,7 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const authService = require('../services/auth.service');
+const { encriptar, comparar } = require('../utils/password');
+const { generarToken } = require('../utils/jwt');
 
 // REGISTRO DE USUARIOS
 const registrar = async (req, res) => {
@@ -17,37 +16,27 @@ const registrar = async (req, res) => {
     const emailLimpio = email.trim().toLowerCase();
 
     // 2. Verificar si el email ya existe en MySQL
-    const usuarioExiste = await prisma.usuario.findUnique({
-      where: { email: emailLimpio }
-    });
+    const usuarioExiste = await authService.buscarPorEmail(emailLimpio);
 
     if (usuarioExiste) {
       return res.status(400).json({ error: 'Este correo electrónico ya está registrado' });
     }
 
-    // 3. ENCRIPTAR LA CONTRASEÑA (Seguridad)
-    const salt = await bcrypt.genSalt(10);
-    const passwordEncriptada = await bcrypt.hash(password, salt);
+    // 3. ENCRIPTAR LA CONTRASEÑA (Seguridad delegada a utils)
+    const passwordEncriptada = await encriptar(password);
 
-    // 4. Guardar el nuevo usuario en MySQL
-    const nuevoUsuario = await prisma.usuario.create({
-      data: {
-        email: emailLimpio,
-        password: passwordEncriptada,
-        rol: rol ? rol.toUpperCase() : "EMPLEADO" // Si no mandan rol, por defecto es EMPLEADO
-      }
-    });
+    // 4. Guardar el nuevo usuario en MySQL (Delegado al servicio)
+    const nuevoUsuario = await authService.crearUsuario(emailLimpio, passwordEncriptada, rol);
 
-    // 5. Responder con éxito (Nunca devolvemos el password en el JSON de respuesta)
+    // 5. Responder con éxito (Nunca devolvemos el password)
     res.status(201).json({
-      mensaje: "Usuario registrado con éxito",
+      mensaje: 'Usuario registrado con éxito',
       usuario: {
         id: nuevoUsuario.id,
         email: nuevoUsuario.email,
-        rol: nuevoUsuario.rol
-      }
+        rol: nuevoUsuario.rol,
+      },
     });
-
   } catch (error) {
     res.status(500).json({ error: 'Error al registrar el usuario', detalles: error.message });
   }
@@ -67,40 +56,37 @@ const login = async (req, res) => {
     const emailLimpio = email.trim().toLowerCase();
 
     // 2. Buscar si el usuario existe en MySQL
-    const usuario = await prisma.usuario.findUnique({
-      where: { email: emailLimpio }
-    });
+    const usuario = await authService.buscarPorEmail(emailLimpio);
 
     if (!usuario) {
-      // Por seguridad, mensaje genérico para no dar pistas a atacantes
+      // Mensaje genérico por seguridad
       return res.status(401).json({ error: 'Credenciales incorrectas' });
     }
 
-    // 3. COMPARAR CONTRASEÑAS
-    const passwordCorrecto = await bcrypt.compare(password, usuario.password);
+    // 3. COMPARAR CONTRASEÑAS (Delegado a utils)
+    const passwordCorrecto = await comparar(password, usuario.password);
 
     if (!passwordCorrecto) {
       return res.status(401).json({ error: 'Credenciales incorrectas' });
     }
 
-    // 4. GENERAR EL TOKEN JWT
-    const token = jwt.sign(
-      { id: usuario.id, email: usuario.email, rol: usuario.rol },
-      process.env.JWT_SECRET,
-      { expiresIn: '8h' }
-    );
+    // 4. GENERAR EL TOKEN JWT (Delegado a utils)
+    const token = generarToken({
+      id: usuario.id,
+      email: usuario.email,
+      rol: usuario.rol,
+    });
 
     // 5. Devolver la respuesta con el Token
     res.json({
-      mensaje: "Inicio de sesión exitoso",
+      mensaje: 'Inicio de sesión exitoso',
       usuario: {
         id: usuario.id,
         email: usuario.email,
-        rol: usuario.rol
+        rol: usuario.rol,
       },
-      token: token
+      token: token,
     });
-
   } catch (error) {
     res.status(500).json({ error: 'Error al iniciar sesión', detalles: error.message });
   }
@@ -108,5 +94,5 @@ const login = async (req, res) => {
 
 module.exports = {
   registrar,
-  login
+  login,
 };

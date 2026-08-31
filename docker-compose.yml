@@ -16,7 +16,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   backend:
-    build: .
+    build: ./backend
     container_name: inventario_backend
     restart: always
     ports:
@@ -27,6 +27,18 @@ services:
       JWT_SECRET: "secreto_super_seguro_2026"
     depends_on:
       - db
+
+  frontend:
+    build: ./frontend
+    container_name: inventario_frontend
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      # Sincroniza tu carpeta local del frontend con la raíz del servidor web interno
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - backend
 
 volumes:
   mysql_data:

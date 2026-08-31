@@ -1,0 +1,214 @@
+:root {
+    --navy-950: #0f1b2e;
+    --navy-800: #17284a;
+    --navy-700: #1f3560;
+    --ink-900: #10151d;
+    --paper: #f8fafc;
+    --slate-200: #e2e8f0;
+    --slate-500: #64748b;
+    --slate-700: #334155;
+    --line: #cbd5e1;
+}
+
+* { 
+    box-sizing: border-box; 
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--paper);
+    color: var(--ink-900);
+}
+
+h2, h5, .navbar-brand {
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Barra superior */
+.navbar {
+    background: var(--navy-950) !important;
+    border-bottom: 2px solid var(--navy-700);
+    padding: 14px 28px;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar-brand::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--slate-500);
+    display: inline-block;
+}
+
+#userInfo {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin-right: 16px;
+}
+
+/* Botón Cerrar Sesión (Sobrio sin rojo brillante) */
+.btn-outline-danger {
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    background: transparent;
+}
+
+.btn-outline-danger:hover {
+    background: var(--navy-700);
+    border-color: var(--navy-700);
+    color: #fff;
+}
+
+/* Encabezado de sección */
+.container h2 {
+    font-weight: 600;
+    font-size: 1.4rem;
+    color: var(--navy-950);
+    margin: 0;
+}
+
+/* Botones Principales y Agregar Producto */
+.btn-primary {
+    background: var(--navy-950);
+    border-color: var(--navy-950);
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 9px 18px;
+    font-size: 0.9rem;
+}
+
+.btn-primary:hover {
+    background: var(--navy-700);
+    border-color: var(--navy-700);
+}
+
+/* Tarjeta / Tabla */
+.card {
+    border: 1px solid var(--slate-200);
+    border-radius: 10px;
+    background: #fff;
+}
+
+table.dataTable thead th {
+    background: var(--navy-950) !important;
+    color: #fff !important;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    font-size: 0.82rem;
+    letter-spacing: 0.2px;
+    border-bottom: none !important;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+/* Hover de tabla neutro sin color amarillo */
+table.dataTable tbody tr:hover {
+    background-color: #f1f5f9 !important;
+}
+
+table.dataTable tbody td {
+    font-size: 0.92rem;
+    color: var(--ink-900);
+    vertical-align: middle;
+}
+
+/* Botones de exportación DataTables (Excel/PDF) */
+.dataTables_wrapper .dt-buttons .btn {
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--navy-800);
+    font-size: 0.82rem;
+    border-radius: 6px;
+    margin-right: 6px;
+}
+
+.dataTables_wrapper .dt-buttons .btn:hover {
+    background: var(--slate-200);
+    border-color: var(--slate-500);
+    color: var(--navy-950);
+}
+
+.dataTables_filter input,
+.dataTables_length select {
+    border-radius: 6px;
+    border: 1px solid var(--line);
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 10px;
+    overflow: hidden;
+    border: none;
+}
+
+.modal-header {
+    background: var(--navy-950) !important;
+    border-bottom: 1px solid var(--navy-700);
+}
+
+.modal-header .modal-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+}
+
+.form-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--navy-800);
+}
+
+.form-control {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 9px 12px;
+}
+
+.form-control:focus {
+    border-color: var(--navy-700);
+    box-shadow: 0 0 0 3px rgba(31, 53, 96, 0.12);
+}
+
+/* Botón Guardar del Modal (Unificado sin verde) */
+.btn-success {
+    background: var(--navy-950);
+    border-color: var(--navy-950);
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 10px;
+}
+
+.btn-success:hover {
+    background: var(--navy-700);
+    border-color: var(--navy-700);
+}
+
+/* Estilos neutrales para los botones de acción dentro de la tabla (Editar / Eliminar) */
+.btn-warning {
+    background: var(--slate-700) !important;
+    border-color: var(--slate-700) !important;
+    color: #fff !important;
+}
+
+.btn-warning:hover {
+    background: var(--navy-800) !important;
+    border-color: var(--navy-800) !important;
+}
+
+.btn-danger {
+    background: #475569 !important;
+    border-color: #475569 !important;
+    color: #fff !important;
+}
+
+.btn-danger:hover {
+    background: #1e293b !important;
+    border-color: #1e293b !important;
+}

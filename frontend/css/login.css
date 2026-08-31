@@ -1,0 +1,184 @@
+:root {
+    --navy-950: #0f1b2e;
+    --navy-800: #17284a;
+    --navy-700: #1f3560;
+    --ink-900: #10151d;
+    --paper: #f4f2ec;
+    --amber: #c9932e;
+    --amber-soft: #f2dfae;
+    --slate-500: #6b7688;
+}
+
+* { 
+    box-sizing: border-box; 
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--paper);
+    color: var(--ink-900);
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.auth-shell {
+    width: 100%;
+    max-width: 880px;
+    min-height: 520px;
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    box-shadow: 0 24px 60px -20px rgba(15, 27, 46, 0.35);
+}
+
+/* Panel de marca */
+.auth-brand {
+    position: relative;
+    background:
+        repeating-linear-gradient(
+            115deg,
+            rgba(255, 255, 255, 0.05) 0px,
+            rgba(255, 255, 255, 0.05) 2px,
+            transparent 2px,
+            transparent 18px
+        ),
+        linear-gradient(160deg, var(--navy-950) 0%, var(--navy-700) 100%);
+    color: #fff;
+    padding: 44px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.auth-brand .mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: var(--amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    color: var(--navy-950);
+    font-size: 1.1rem;
+}
+
+.auth-brand h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.9rem;
+    font-weight: 600;
+    line-height: 1.25;
+    margin: 28px 0 12px;
+}
+
+.auth-brand p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    max-width: 30ch;
+    margin: 0;
+}
+
+.auth-brand .tag-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.auth-brand .tag-row span {
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.78rem;
+}
+
+/* Panel de formulario */
+.auth-form-panel {
+    padding: 48px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-form-panel h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+    color: var(--navy-950);
+}
+
+.auth-form-panel .subtitle {
+    color: var(--slate-500);
+    font-size: 0.92rem;
+    margin-bottom: 28px;
+}
+
+.form-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--navy-800);
+    margin-bottom: 6px;
+}
+
+.form-control {
+    border: 1.5px solid #e4e1d8;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 0.95rem;
+    background: #fbfaf7;
+}
+
+.form-control:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px rgba(201, 147, 46, 0.18);
+    background: #fff;
+}
+
+.btn-entrar {
+    background: var(--navy-950);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.2px;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-entrar:hover {
+    background: var(--navy-700);
+    color: #fff;
+}
+
+.btn-entrar:active {
+    transform: translateY(1px);
+}
+
+#alertContainer:empty { 
+    margin: 0; 
+}
+
+@media (max-width: 760px) {
+    .auth-shell { 
+        grid-template-columns: 1fr; 
+    }
+    .auth-brand { 
+        padding: 32px 28px; 
+    }
+    .auth-brand h1 { 
+        font-size: 1.5rem; 
+    }
+    .auth-form-panel { 
+        padding: 36px 28px; 
+    }
+}
