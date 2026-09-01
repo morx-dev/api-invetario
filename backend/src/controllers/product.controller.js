@@ -58,6 +58,9 @@ const actualizarProducto = async (req, res) => {
   try {
     const { id } = req.params;
     const { nombre, precio, stock, motivo } = req.body;
+    
+    // 1. Extraer el ID del usuario autenticado directamente del token JWT (middleware auth)
+    const usuarioId = req.usuario?.id || req.user?.id; 
 
     const productoActual = await productService.obtenerPorId(id);
 
@@ -65,7 +68,7 @@ const actualizarProducto = async (req, res) => {
       return res.status(404).json({ error: `No se encontró el producto con ID ${id}` });
     }
 
-    // Datos a actualizar
+    // 2. Mapear solo los campos enviados
     const datosActualizar = {};
     if (nombre !== undefined) datosActualizar.nombre = nombre.trim();
     if (precio !== undefined) datosActualizar.precio = Number(precio);
@@ -78,13 +81,17 @@ const actualizarProducto = async (req, res) => {
 
     const diferencia = nuevoStock - productoActual.stock;
 
-    // Si hubo cambio de stock, registramos la transacción con el historial
+    // 3. Si cambió el stock, registramos la transacción en el historial de inventario
     if (diferencia !== 0) {
+      // Asignar motivo por defecto si no viene en el body
+      const motivoTexto = motivo || (diferencia > 0 ? 'ENTRADA (Ajuste manual de stock)' : 'SALIDA (Ajuste manual de stock)');
+
       const productoActualizado = await productService.actualizarConHistorial(
         id,
         datosActualizar,
         diferencia,
-        motivo
+        motivoTexto,
+        usuarioId // <-- Enviar el usuarioId para la relación en la tabla Historial
       );
 
       return res.json({
@@ -93,12 +100,18 @@ const actualizarProducto = async (req, res) => {
       });
     }
 
-    // Si solo cambió nombre o precio sin modificar stock
+    // 4. Si solo cambió el nombre o precio sin modificar el stock
     const productoActualizado = await productService.actualizarSinHistorial(id, datosActualizar);
 
-    res.json({ mensaje: 'Producto actualizado con éxito', producto: productoActualizado });
+    return res.json({ mensaje: 'Producto actualizado con éxito', producto: productoActualizado });
+
   } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar el producto', detalles: error.message });
+    // CRUCIAL: Ver el error real en la terminal/Docker
+    console.error("Error en actualizarProducto:", error);
+    return res.status(500).json({ 
+      error: 'Error al actualizar el producto', 
+      detalles: error.message 
+    });
   }
 };
 

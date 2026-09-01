@@ -3,7 +3,6 @@ const prisma = require('../config/database');
 
 /**
  * Registra un nuevo producto en la base de datos.
- * @param {Object} datos - Objeto con nombre, stock y precio.
  */
 const crear = async (datos) => {
   return await prisma.producto.create({
@@ -24,22 +23,16 @@ const obtenerTodos = async () => {
 
 /**
  * Busca un producto específico por su ID primario.
- * @param {number|string} id - Identificador único del producto.
  */
 const obtenerPorId = async (id) => {
   return await prisma.producto.findUnique({
-    where: { id: Number(id) }, // Aseguramos la conversión a número para la consulta SQL
+    where: { id: Number(id) },
   });
 };
 
 /**
  * Ejecuta una transacción ACID para actualizar el producto y registrar
  * simultáneamente el movimiento en la tabla de historial.
- * 
- * @param {number|string} id - ID del producto a actualizar.
- * @param {Object} datosActualizar - Campos modificados (nombre, precio, stock).
- * @param {number} diferencia - Unidades aumentadas (+) o disminuidas (-).
- * @param {string} motivo - Razón del cambio de stock.
  */
 const actualizarConHistorial = async (id, datosActualizar, diferencia, motivo) => {
   // Determinamos si es una ENTRADA o SALIDA de inventario
@@ -49,15 +42,15 @@ const actualizarConHistorial = async (id, datosActualizar, diferencia, motivo) =
   const motivoFinal =
     motivo || (tipoMovimiento === 'ENTRADA' ? 'Abastecimiento manual' : 'Despacho manual');
 
-  // $transaction garantiza atomicidad: si falla una operación, se revierte todo (Rollback)
+  // $transaction garantiza atomicidad
   const [productoActualizado] = await prisma.$transaction([
     // Operación 1: Actualiza la tabla Producto
     prisma.producto.update({
       where: { id: Number(id) },
       data: datosActualizar,
     }),
-    // Operación 2: Crea el registro en HistorialMovimiento vinculado por FK
-    prisma.historialMovimiento.create({
+    // Operación 2: Crea el registro en historialmovimiento (nombre exacto del schema)
+    prisma.historialmovimiento.create({
       data: {
         productoId: Number(id),
         cantidad: diferencia,
@@ -67,14 +60,11 @@ const actualizarConHistorial = async (id, datosActualizar, diferencia, motivo) =
     }),
   ]);
 
-  return productoActualizado; // Retorna el producto resultante de la transacción
+  return productoActualizado;
 };
 
 /**
- * Actualiza los datos del producto (nombre o precio) sin tocar el stock ni generar historial.
- * 
- * @param {number|string} id - ID del producto.
- * @param {Object} datosActualizar - Objeto con los nuevos valores.
+ * Actualiza los datos del producto sin tocar el stock ni generar historial.
  */
 const actualizarSinHistorial = async (id, datosActualizar) => {
   return await prisma.producto.update({
@@ -84,9 +74,7 @@ const actualizarSinHistorial = async (id, datosActualizar) => {
 };
 
 /**
- * Elimina un producto de la base de datos (y su historial en cascada si está configurado en Prisma).
- * 
- * @param {number|string} id - ID del producto a eliminar.
+ * Elimina un producto de la base de datos.
  */
 const eliminar = async (id) => {
   return await prisma.producto.delete({
@@ -95,17 +83,15 @@ const eliminar = async (id) => {
 };
 
 /**
- * Obtiene el historial de movimientos de inventario ordenados del más reciente al más antiguo,
- * incluyendo los datos del producto asociado mediante un JOIN implícito.
+ * Obtiene el historial de movimientos de inventario ordenados.
  */
 const obtenerHistorialMovimientos = async () => {
-  return await prisma.historialMovimiento.findMany({
-    orderBy: { creadoEn: 'desc' }, // Orden cronológico descendente
-    include: { producto: true },    // Realiza el JOIN relacional con la tabla Producto
+  return await prisma.historialmovimiento.findMany({
+    orderBy: { creadoEn: 'desc' },
+    include: { producto: true },
   });
 };
 
-// Exportación de los métodos del servicio para ser consumidos por el controlador
 module.exports = {
   crear,
   obtenerTodos,

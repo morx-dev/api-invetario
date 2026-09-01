@@ -106,23 +106,29 @@ if (formProducto) {
     const id = document.getElementById('prodId').value;
     const nombre = document.getElementById('prodNombre').value;
     const precio = parseFloat(document.getElementById('prodPrecio').value);
-    const stock = parseInt(document.getElementById('prodStock').value);
+    const stock = parseInt(document.getElementById('prodStock').value, 10);
 
     const esEdicion = Boolean(id);
     const url = esEdicion ? `${API_URL}/productos/${parseInt(id, 10)}` : `${API_URL}/productos`;
     const method = esEdicion ? 'PUT' : 'POST';
 
+    // Construcción del objeto del cuerpo de la petición
+    const bodyData = { nombre, precio, stock };
+    if (esEdicion) {
+      bodyData.motivo = 'Actualización manual desde interfaz web';
+    }
+
     try {
       const respuesta = await fetch(url, {
         method: method,
         headers: obtenerHeadersAuth(),
-        body: JSON.stringify({ nombre, precio, stock })
+        body: JSON.stringify(bodyData)
       });
 
       const datos = await respuesta.json();
 
       if (!respuesta.ok) {
-        alert(datos.error || 'Error al procesar la solicitud');
+        alert(datos.error || datos.detalles || 'Error al procesar la solicitud');
         return;
       }
 
