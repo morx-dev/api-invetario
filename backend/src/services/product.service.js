@@ -34,7 +34,7 @@ const obtenerPorId = async (id) => {
  * Ejecuta una transacción ACID para actualizar el producto y registrar
  * simultáneamente el movimiento en la tabla de historial.
  */
-const actualizarConHistorial = async (id, datosActualizar, diferencia, motivo) => {
+const actualizarConHistorial = async (id, datosActualizar, diferencia, motivo, usuarioId) => {
   // Determinamos si es una ENTRADA o SALIDA de inventario
   const tipoMovimiento = diferencia > 0 ? 'ENTRADA' : 'SALIDA';
   
@@ -56,6 +56,7 @@ const actualizarConHistorial = async (id, datosActualizar, diferencia, motivo) =
         cantidad: diferencia,
         tipo: tipoMovimiento,
         motivo: motivoFinal,
+        usuarioId: usuarioId ? Number(usuarioId) : null, // Asocia el usuario que hizo el cambio
       },
     }),
   ]);
@@ -88,7 +89,7 @@ const eliminar = async (id) => {
 const obtenerHistorialMovimientos = async () => {
   return await prisma.historialmovimiento.findMany({
     orderBy: { creadoEn: 'desc' },
-    include: { producto: true },
+    include: { producto: true, usuario: true }, // Incluye la relación con el producto y el usuario
   });
 };
 
